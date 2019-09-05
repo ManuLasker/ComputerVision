@@ -131,9 +131,15 @@ class KNearestNeighbor(object):
         #       and two broadcast sums.                                         #
         #########################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
-        pass
-
+        # (a-b)^2= a^2 - 2ab + b^2
+        # let's calculate first a^2
+        A = X**2 @ np.ones((num_test, self.X_train.shape[1]))
+        # calculation of b^2
+        B = (self.X_train**2 @ np.ones((num_train, num_test))).T
+        # let's calculate -2ab
+        C = -2 * (X @ self.X_train.T)
+        # let's join everything
+        dists = (A+B+C)**(1/2)
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
         return dists
 
