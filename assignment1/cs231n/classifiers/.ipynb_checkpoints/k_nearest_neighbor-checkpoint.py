@@ -133,11 +133,14 @@ class KNearestNeighbor(object):
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
         # (a-b)^2= a^2 - 2ab + b^2
         # let's calculate first a^2
-        A = X**2 @ np.ones((num_test, self.X_train.shape[1]))
+        A = X**2 @ np.ones((X.shape[1], self.X_train.shape[0]))
+        #print(A.shape)
         # calculation of b^2
-        B = (self.X_train**2 @ np.ones((num_train, num_test))).T
+        B = (self.X_train**2 @ np.ones((self.X_train.shape[1], num_test))).T
+        #print(B.shape)
         # let's calculate -2ab
         C = -2 * (X @ self.X_train.T)
+        #print(C.shape)
         # let's join everything
         dists = (A+B+C)**(1/2)
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
@@ -169,7 +172,7 @@ class KNearestNeighbor(object):
             # Hint: Look up the function numpy.argsort.                             #
             #########################################################################
             # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-            idx_min_distance = np.argsort(dists)
+            idx_min_distance = np.argsort(dists[i,:])
             closest_y = self.y_train[idx_min_distance[np.arange(k)]]
             pass
 
