@@ -46,7 +46,6 @@ def svm_loss_naive(W, X, y, reg):
             if margin > 0:
                 loss += margin
                 for k in range(W.shape[0]):
-                    
 
     # Right now the loss is a sum over all training examples, but we want it
     # to be an average instead so we divide by num_train.
