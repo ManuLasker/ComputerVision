@@ -6,6 +6,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from past.builtins import xrange
 
+
 class TwoLayerNet(object):
     """
     A two-layer fully-connected neural network. The net has an input dimension of
@@ -79,9 +80,8 @@ class TwoLayerNet(object):
         # shape (N, C).                                                             #
         #############################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
-        pass
-
+        h1 = np.maximum(X.dot(W1) + b1, 0) # one Layer with ReLu activation function
+        scores = h1.dot(W2) + b2
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
         # If the targets are not given then jump out, we're done
@@ -97,9 +97,13 @@ class TwoLayerNet(object):
         # classifier loss.                                                          #
         #############################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
-        pass
-
+        # Implement softmax loss in neural net loss function
+        scores -= np.max(scores, axis=1, keepdims=True) # avoid numeric instability
+        scores_exp = np.exp(scores)
+        softmax_matrix = scores_exp / np.sum(scores_exp, axis=1, keepdims=True) 
+        loss = np.sum(-np.log(softmax_matrix[np.arange(N), y]))
+        loss /= N
+        loss += reg * (np.sum(W2 * W2) + np.sum( W1 * W1 )) 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
         # Backward pass: compute gradients
@@ -110,12 +114,12 @@ class TwoLayerNet(object):
         # grads['W1'] should store the gradient on W1, and be a matrix of same size #
         #############################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
-        pass
-
+        softmax_matrix[np.arange(N),y] -=  1
+        grads['W1'] = X.T.dot(softmax_matrix)/N + reg * 2 * W1
+        grads['W2'] = X.T.dot(softmax_matrix)/N + reg * 2 * W2
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
-        return loss, grads
+        if y is not None:
+          return loss, grads
 
     def train(self, X, y, X_val, y_val,
               learning_rate=1e-3, learning_rate_decay=0.95,
@@ -191,9 +195,9 @@ class TwoLayerNet(object):
                 learning_rate *= learning_rate_decay
 
         return {
-          'loss_history': loss_history,
-          'train_acc_history': train_acc_history,
-          'val_acc_history': val_acc_history,
+            'loss_history': loss_history,
+            'train_acc_history': train_acc_history,
+            'val_acc_history': val_acc_history,
         }
 
     def predict(self, X):
@@ -218,8 +222,11 @@ class TwoLayerNet(object):
         ###########################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-        pass
-
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
         return y_pred
+    
+    def sigmoid(self, z):
+      # return the sigmoid function evaluate in some value
+      sig = 1/(1 + np.exp(-z))
+      return sig
