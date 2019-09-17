@@ -80,8 +80,9 @@ class TwoLayerNet(object):
         # shape (N, C).                                                             #
         #############################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-        h1 = np.maximum(X.dot(W1) + b1, 0) # one Layer with ReLu activation function
-        scores = h1.dot(W2) + b2
+        fc1 = X.dot(W1) + b1     # fully connected
+        X2 = np.maximum(0, fc1)  # ReLU
+        scores = X2.dot(W2) + b2 # fully connected
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
         # If the targets are not given then jump out, we're done
@@ -114,9 +115,28 @@ class TwoLayerNet(object):
         # grads['W1'] should store the gradient on W1, and be a matrix of same size #
         #############################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-        softmax_matrix[np.arange(N),y] -=  1
-        grads['W1'] = X.T.dot(softmax_matrix)/N + reg * 2 * W1
-        grads['W2'] = X.T.dot(softmax_matrix)/N + reg * 2 * W2
+        softmax_matrix[np.arange(N) ,y] -= 1
+        softmax_matrix /= N
+
+        # W2 gradient
+        dW2 = X2.T.dot(softmax_matrix)   # [HxN] * [NxC] = [HxC]
+
+        # b2 gradient
+        db2 = softmax_matrix.sum(axis=0)
+
+        # W1 gradient
+        dW1 = softmax_matrix.dot(W2.T)   # [NxC] * [CxH] = [NxH]
+        dfc1 = dW1 * (fc1>0)             # [NxH] . [NxH] = [NxH]
+        dW1 = X.T.dot(dfc1)              # [DxN] * [NxH] = [DxH]
+
+        # b1 gradient
+        db1 = dfc1.sum(axis=0)
+
+        # regularization gradient
+        dW1 += reg * 2 * W1
+        dW2 += reg * 2 * W2
+
+        grads = {'W1':dW1, 'b1':db1, 'W2':dW2, 'b2':db2}        
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
         if y is not None:
           return loss, grads
