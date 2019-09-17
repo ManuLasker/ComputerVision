@@ -78,9 +78,18 @@ def svm_loss_vectorized(W, X, y, reg):
     # result in loss.                                                           #
     #############################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
-    pass
-
+    dW = np.zeros(W.shape) # initialize the gradient as zero
+    # compute the loss and the gradient
+    num_classes = W.shape[1]
+    num_train = X.shape[0]
+    scores = X.dot(W) # calculate score matrix
+    margin =  scores.T - scores[np.arange(len(y)), y] +  1
+    margin = margin.T
+    margin[np.arange(len(y)), y]  = 0
+    margin_max =  (margin > 0).astype(int)
+    margin_temp = margin * margin_max #just sum when the margin
+                                                   #is greater than 0
+    loss = np.sum(margin_temp)/num_train + reg * np.sum(W * W)
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
     #############################################################################
@@ -93,9 +102,9 @@ def svm_loss_vectorized(W, X, y, reg):
     # loss.                                                                     #
     #############################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
-    pass
-
+    # the derivative is taken just if margin > 0, that means  margin_temp
+    margin_max[np.arange(num_train), y] -= np.sum(margin_max, axis = 1) 
+    dW = X.T.dot(margin_max)/num_train + reg * 2 * W # here we have only the sum
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
+    
     return loss, dW
