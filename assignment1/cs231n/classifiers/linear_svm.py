@@ -42,21 +42,23 @@ def svm_loss_naive(W, X, y, reg):
         for j in range(num_classes):
             if j == y[i]:
                 continue
-            margin = scores[j] - correct_class_score + 1 # note delta = 1
+            margin = scores[j] - correct_class_score + 1 
             if margin > 0:
                 loss += margin
                 for k in range(W.shape[0]):
-                    
+                    dW[k, y[i]] = dW[k, y[i]] - X[i,k] 
+                    dW[k,j] = dW[k,j] + X[i,k] 
 
     # Right now the loss is a sum over all training examples, but we want it
     # to be an average instead so we divide by num_train.
     loss /= num_train
+    dW = dW / num_train 
 
     # Add regularization to the loss.
     loss += reg * np.sum(W * W)
-    dW += reg * 2* np.sum(W)
+    dW = dW + reg * 2 * W #
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-    
+        
     return loss, dW
 
 

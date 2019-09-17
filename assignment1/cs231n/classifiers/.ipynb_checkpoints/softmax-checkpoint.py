@@ -52,7 +52,7 @@ def softmax_loss_naive(W, X, y, reg):
                 if j != y[i]:
                     dW[k,j] = dW[k,j] + X[i, k] * softmax[j]
                 else:
-                    dW[k,j] = dW[k,j] + X[i, k] * softmax[j]- X[i, k]
+                    dW[k,j] = dW[k,j] + X[i, k] * softmax[j] - X[i, k]
     # Average
     loss /= num_train
     dW /= num_train
